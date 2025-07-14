@@ -39,22 +39,33 @@ const postSchema = new mongoose_1.Schema({
     content: { type: String },
     images: [{ type: String }],
     video: { type: String },
+    videoThumbnail: { type: String },
     postType: {
         type: String,
-        enum: ["text", "image", "video", "poll"],
+        enum: ["text", "image", "video", "poll", "mixed"],
         required: true,
     },
     pollOptions: [
         {
             option: { type: String },
             votes: { type: Number, default: 0 },
+            voters: [{ type: mongoose_1.Schema.Types.ObjectId, ref: "User" }],
         },
     ],
     expiresAt: { type: Date },
-    // ✅ New Fields for Likes and Saved
-    likes: [{ type: mongoose_1.default.Types.ObjectId, ref: "User", default: [] }],
-    savedBy: [{ type: mongoose_1.default.Types.ObjectId, ref: "User", default: [] }],
+    // Social Interactions
+    likes: [{ type: mongoose_1.Schema.Types.ObjectId, ref: "User", default: [] }],
+    savedBy: [{ type: mongoose_1.Schema.Types.ObjectId, ref: "User", default: [] }],
     shareCount: { type: Number, default: 0 },
-    sharedBy: [{ type: mongoose_1.default.Types.ObjectId, ref: "User", default: [] }],
+    sharedBy: [{ type: mongoose_1.Schema.Types.ObjectId, ref: "User", default: [] }],
+    // View Tracking
+    views: [
+        {
+            userId: { type: mongoose_1.Schema.Types.ObjectId, ref: "User" },
+            viewedAt: { type: Date, default: Date.now },
+        },
+    ],
+    viewCount: { type: Number, default: 0 },
+    category: { type: String },
 }, { timestamps: true });
 exports.default = mongoose_1.default.model("Post", postSchema);

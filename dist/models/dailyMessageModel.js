@@ -34,16 +34,8 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const notificationSchema = new mongoose_1.Schema({
-    senderId: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", required: true },
-    receiverId: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", required: true },
-    postId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Post" },
-    commentId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Comment" },
-    type: {
-        type: String,
-        enum: ["like", "comment", "reply", "share", "save", "unsave", "like-comment"],
-        required: true,
-    },
-    isRead: { type: Boolean, default: false },
+const dailyMessageSchema = new mongoose_1.Schema({
+    adminId: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", required: true },
+    content: { type: String, required: true },
 }, { timestamps: true });
-exports.default = mongoose_1.default.model("Notification", notificationSchema);
+exports.default = mongoose_1.default.model("DailyMessage", dailyMessageSchema);

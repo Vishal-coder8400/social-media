@@ -12,12 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// src/config/db.ts
 const mongoose_1 = __importDefault(require("mongoose"));
 const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
     const uri = process.env.MONGO_URI;
     if (!uri) {
-        console.error("❌ MONGO_URI is not defined in the .env file");
+        console.error(" MONGO_URI is not defined in the .env file");
         process.exit(1);
     }
     try {
@@ -25,7 +24,7 @@ const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
         console.log("✅ MongoDB connected successfully");
     }
     catch (error) {
-        console.error("❌ MongoDB connection error:", error);
+        console.error(" MongoDB connection error:", error);
         process.exit(1); // Exit to avoid running app without DB
     }
 });

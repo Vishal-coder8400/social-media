@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyFirebaseToken = void 0;
+exports.requireUser = exports.requireAdmin = exports.verifyFirebaseToken = void 0;
 const firebase_1 = __importDefault(require("../config/firebase"));
 const userModel_1 = __importDefault(require("../models/userModel"));
 const verifyFirebaseToken = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -29,6 +29,12 @@ const verifyFirebaseToken = (req, res, next) => __awaiter(void 0, void 0, void 0
             res.status(401).json({ message: "Unauthorized: User not found" });
             return;
         }
+        // Save FCM token if provided in request headers
+        const fcmToken = req.headers["x-fcm-token"];
+        if (fcmToken && typeof fcmToken === "string" && user.fcmToken !== fcmToken) {
+            user.fcmToken = fcmToken;
+            yield user.save();
+        }
         req.user = user;
         next();
     }
@@ -38,3 +44,23 @@ const verifyFirebaseToken = (req, res, next) => __awaiter(void 0, void 0, void 0
     }
 });
 exports.verifyFirebaseToken = verifyFirebaseToken;
+// Admin-only access
+const requireAdmin = (req, res, next) => {
+    var _a;
+    if (((_a = req.user) === null || _a === void 0 ? void 0 : _a.role) !== "admin") {
+        res.status(403).json({ message: "Forbidden: Admins only" });
+        return;
+    }
+    next();
+};
+exports.requireAdmin = requireAdmin;
+//User-only access
+const requireUser = (req, res, next) => {
+    var _a;
+    if (((_a = req.user) === null || _a === void 0 ? void 0 : _a.role) !== "user") {
+        res.status(403).json({ message: "Forbidden: Users only" });
+        return;
+    }
+    next();
+};
+exports.requireUser = requireUser;

@@ -39,7 +39,19 @@ const userSchema = new mongoose_1.Schema({
     name: String,
     email: String,
     photoURL: String,
-    role: { type: String, enum: ["user", "admin"], default: "user" },
+    address: { type: String },
+    role: { type: String, enum: ["user", "admin", "pending"], default: "user" },
+    fcmToken: { type: String },
+    // Blocking Fields
+    isBlocked: { type: Boolean, default: false },
+    blockedUntil: { type: Date, default: null },
+    blockReason: { type: String, default: "" },
+    // Restriction Controls
+    restrictions: {
+        type: Map,
+        of: Boolean,
+        default: {},
+    },
 }, { timestamps: true });
 const User = mongoose_1.default.model("User", userSchema);
 exports.default = User;

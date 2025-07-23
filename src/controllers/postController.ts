@@ -3,21 +3,22 @@ import Post from "../models/postModel";
 import cloudinary from "../utils/cloudinary";
 import mongoose from "mongoose";
 import dayjs from "dayjs";
+import fs from "fs";
+import os from "os";
+import path from "path";
+import { v4 as uuid } from "uuid";
 import { sendNotification } from "../utils/sendNotification";
 import Notification from "../models/notificationModel";
 import User from "../models/userModel";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { UploadApiResponse } from "cloudinary";
+
 dayjs.extend(relativeTime);
 
-
-// ✅ Extend Request to include authenticated user
 interface AuthRequest extends Request {
   user?: { _id: string };
 }
 
-
-
-//Create Post
 export const createPost = async (req: AuthRequest, res: Response): Promise<void> => {
   const { content, postType, pollOptions, category } = req.body;
   const adminId = req.user?._id;
@@ -32,63 +33,101 @@ export const createPost = async (req: AuthRequest, res: Response): Promise<void>
     let video: string | undefined;
     let videoThumbnail: string | undefined;
 
-    // Upload Images
+    // ✅ Upload Images
     if (req.files && "images" in req.files) {
       const imageFiles = req.files["images"] as Express.Multer.File[];
+
       for (const file of imageFiles) {
+        if (file.size > 15 * 1024 * 1024) {
+          res.status(400).json({ message: "Each image must be under 15MB" });
+          return;
+        }
+
         const imageUrl = await new Promise<string>((resolve, reject) => {
           const stream = cloudinary.uploader.upload_stream(
             {
               resource_type: "image",
               folder: "posts/images",
+              format: "webp",
+              quality: "auto:good",
             },
             (error, result) => {
-              if (error || !result) reject("Image upload failed");
-              else resolve(result.secure_url);
+              if (error || !result) {
+                console.error("❌ Image upload error:", error);
+                reject("Image upload failed");
+              } else {
+                resolve(result.secure_url);
+              }
             }
           );
           stream.end(file.buffer);
         });
+
         images.push(imageUrl);
       }
     }
 
-    // Upload Video
+    // ✅ Upload Video (stream + async eager processing)
     if (req.files && "video" in req.files) {
       const videoFile = (req.files["video"] as Express.Multer.File[])[0];
+
+      if (videoFile.size > 1024 * 1024 * 1024) {
+        res.status(400).json({ message: "Video too large (max 1GB)" });
+        return;
+      }
+
       video = await new Promise<string>((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
           {
             resource_type: "video",
             folder: "posts/videos",
+            eager: [{ format: "mp4", quality: "auto" }],
+            eager_async: true,
           },
           (error, result) => {
-            if (error || !result) reject("Video upload failed");
-            else resolve(result.secure_url);
+            if (error || !result) {
+              console.error("🚨 Cloudinary video upload error:", error);
+              reject("Video upload failed");
+            } else {
+              resolve(result.secure_url);
+            }
           }
         );
         stream.end(videoFile.buffer);
       });
     }
 
-    // Upload Video Thumbnail
+    // ✅ Upload Video Thumbnail
     if (req.files && "videoThumbnail" in req.files) {
       const thumbnailFile = (req.files["videoThumbnail"] as Express.Multer.File[])[0];
+
+      if (thumbnailFile.size > 5 * 1024 * 1024) {
+        res.status(400).json({ message: "Thumbnail too large (max 5MB)" });
+        return;
+      }
+
       videoThumbnail = await new Promise<string>((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
           {
             resource_type: "image",
             folder: "posts/thumbnails",
+            quality: "auto:eco",
+            format: "webp",
           },
           (error, result) => {
-            if (error || !result) reject("Thumbnail upload failed");
-            else resolve(result.secure_url);
+            if (error || !result) {
+              console.error("❌ Thumbnail upload error:", error);
+              reject("Thumbnail upload failed");
+            } else {
+              resolve(result.secure_url);
+            }
           }
         );
         stream.end(thumbnailFile.buffer);
       });
     }
 
+    // ✅ Save Post
     const post = await Post.create({
       adminId,
       content,
@@ -100,22 +139,18 @@ export const createPost = async (req: AuthRequest, res: Response): Promise<void>
       pollOptions: postType === "poll" ? JSON.parse(pollOptions || "[]") : [],
     });
 
-    // Populate adminId
     const populatedPost = await post.populate("adminId", "_id name photoURL");
     const postObj = populatedPost.toObject();
-
     const admin = postObj.adminId as unknown as {
       _id: string;
       name: string;
       photoURL: string;
     };
 
-    const { category: _omitCategory, ...cleanedPost } = postObj;
-
     res.status(201).json({
       category: category.toLowerCase(),
       post: {
-        ...cleanedPost,
+        ...postObj,
         timeAgo: dayjs(post.createdAt).fromNow(),
         adminId: {
           _id: admin._id,
@@ -129,6 +164,8 @@ export const createPost = async (req: AuthRequest, res: Response): Promise<void>
     res.status(500).json({ message: "Failed to create post", error: err });
   }
 };
+
+
 
 // Helper: calculate vote percentages
 function getVotePercentages(options: any[]) {

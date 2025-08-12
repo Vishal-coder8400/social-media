@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteDailyMessage = exports.updateDailyMessage = exports.getDailyMessageById = exports.getDailyMessage = exports.createDailyMessage = void 0;
+exports.deleteDailyMessage = exports.updateDailyMessage = exports.getDailyMessageById = exports.getAllDailyMessages = exports.createDailyMessage = void 0;
 const dailyMessageModel_1 = __importDefault(require("../models/dailyMessageModel"));
 const dayjs_1 = __importDefault(require("dayjs"));
 const relativeTime_1 = __importDefault(require("dayjs/plugin/relativeTime"));
@@ -42,27 +42,29 @@ const createDailyMessage = (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.createDailyMessage = createDailyMessage;
-// Get Latest
-const getDailyMessage = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Get All
+const getAllDailyMessages = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const message = yield dailyMessageModel_1.default.findOne().sort({ createdAt: -1 }).populate("adminId", "name photoURL");
-        if (!message) {
-            res.status(404).json({ message: "No daily message found" });
+        const messages = yield dailyMessageModel_1.default.find()
+            .sort({ createdAt: -1 })
+            .populate("adminId", "name photoURL");
+        if (!messages || messages.length === 0) {
+            res.status(404).json({ message: "No daily messages found" });
             return;
         }
-        res.status(200).json({
-            _id: message._id,
-            content: message.content,
-            postedBy: message.adminId,
-            date: (0, dayjs_1.default)(message.createdAt).format("MMMM D, YYYY"),
-            timeAgo: (0, dayjs_1.default)(message.createdAt).fromNow(),
-        });
+        res.status(200).json(messages.map(msg => ({
+            _id: msg._id,
+            content: msg.content,
+            postedBy: msg.adminId,
+            date: (0, dayjs_1.default)(msg.createdAt).format("MMMM D, YYYY"),
+            timeAgo: (0, dayjs_1.default)(msg.createdAt).fromNow(),
+        })));
     }
     catch (err) {
-        res.status(500).json({ message: "Failed to fetch daily message", error: err });
+        res.status(500).json({ message: "Failed to fetch daily messages", error: err });
     }
 });
-exports.getDailyMessage = getDailyMessage;
+exports.getAllDailyMessages = getAllDailyMessages;
 //  Get by ID
 const getDailyMessageById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;

@@ -10,7 +10,7 @@ const checkBlockedUser_1 = require("../middlewares/checkBlockedUser");
 const checkFeatureRestriction_1 = require("../middlewares/checkFeatureRestriction");
 const router = express_1.default.Router();
 router.post("/postDailyMsg", authMiddleware_1.verifyFirebaseToken, authMiddleware_1.requireAdmin, dailyMessageController_1.createDailyMessage);
-router.get("/getAllDailyMsg", authMiddleware_1.verifyFirebaseToken, checkBlockedUser_1.checkBlockedUser, (0, checkFeatureRestriction_1.checkFeatureAccess)("post"), dailyMessageController_1.getDailyMessage); // Public (users)
+router.get("/getAllDailyMsg", authMiddleware_1.verifyFirebaseToken, checkBlockedUser_1.checkBlockedUser, (0, checkFeatureRestriction_1.checkFeatureAccess)("post"), dailyMessageController_1.getAllDailyMessages); // Public (users)
 router.get("/dailyMsgById/:id", authMiddleware_1.verifyFirebaseToken, checkBlockedUser_1.checkBlockedUser, (0, checkFeatureRestriction_1.checkFeatureAccess)("post"), dailyMessageController_1.getDailyMessageById);
 router.put("/updateDailyMsg/:id", authMiddleware_1.verifyFirebaseToken, authMiddleware_1.requireAdmin, dailyMessageController_1.updateDailyMessage);
 router.delete("/deleteDailyMsg/:id", authMiddleware_1.verifyFirebaseToken, authMiddleware_1.requireAdmin, dailyMessageController_1.deleteDailyMessage);

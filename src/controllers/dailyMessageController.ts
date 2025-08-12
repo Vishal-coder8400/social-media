@@ -35,27 +35,32 @@ export const createDailyMessage = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// Get Latest
-export const getDailyMessage = async (_req: Request, res: Response) => {
+// Get All
+export const getAllDailyMessages = async (_req: Request, res: Response) => {
   try {
-    const message = await DailyMessage.findOne().sort({ createdAt: -1 }).populate("adminId", "name photoURL");
+    const messages = await DailyMessage.find()
+      .sort({ createdAt: -1 })
+      .populate("adminId", "name photoURL");
 
-    if (!message) {
-      res.status(404).json({ message: "No daily message found" });
+    if (!messages || messages.length === 0) {
+      res.status(404).json({ message: "No daily messages found" });
       return;
     }
 
-    res.status(200).json({
-      _id: message._id,
-      content: message.content,
-      postedBy: message.adminId,
-      date: dayjs(message.createdAt).format("MMMM D, YYYY"),
-      timeAgo: dayjs(message.createdAt).fromNow(),
-    });
+    res.status(200).json(
+      messages.map(msg => ({
+        _id: msg._id,
+        content: msg.content,
+        postedBy: msg.adminId,
+        date: dayjs(msg.createdAt).format("MMMM D, YYYY"),
+        timeAgo: dayjs(msg.createdAt).fromNow(),
+      }))
+    );
   } catch (err) {
-    res.status(500).json({ message: "Failed to fetch daily message", error: err });
+    res.status(500).json({ message: "Failed to fetch daily messages", error: err });
   }
 };
+
 
 //  Get by ID
 export const getDailyMessageById = async (req: Request, res: Response) => {

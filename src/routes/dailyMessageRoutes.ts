@@ -2,7 +2,7 @@ import express from "express";
 import {
   createDailyMessage,
   
-  getDailyMessage,
+  getAllDailyMessages,
   updateDailyMessage,
   deleteDailyMessage,
   getDailyMessageById,
@@ -21,7 +21,7 @@ router.post("/postDailyMsg", verifyFirebaseToken, requireAdmin, createDailyMessa
 router.get("/getAllDailyMsg",verifyFirebaseToken,
   checkBlockedUser,
     checkFeatureAccess("post"),
-   getDailyMessage
+   getAllDailyMessages
   ); // Public (users)
   
 router.get("/dailyMsgById/:id",

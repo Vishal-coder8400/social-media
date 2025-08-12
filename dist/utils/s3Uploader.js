@@ -8,7 +8,7 @@ const multer_1 = __importDefault(require("multer"));
 const multer_s3_1 = __importDefault(require("multer-s3"));
 const s3_1 = __importDefault(require("../services/s3"));
 const bucketName = process.env.AWS_S3_BUCKET_NAME;
-// ✅ File filter to allow images, videos, and PDFs
+//  File filter to allow images, videos, and PDFs
 const fileFilter = (req, file, cb) => {
     const allowedTypes = [
         "image/jpeg",
@@ -27,7 +27,7 @@ const fileFilter = (req, file, cb) => {
         cb(new Error("Only image and video are allowed!"));
     }
 };
-// ✅ Dynamic key naming: images/, videos/, pdfs/
+//  Dynamic key naming: images/, videos/, pdfs/
 const getKey = (_req, file, cb) => {
     let folder = "others";
     if (file.mimetype.startsWith("image/")) {
@@ -39,7 +39,7 @@ const getKey = (_req, file, cb) => {
     const filename = `${folder}/${Date.now()}_${file.originalname}`;
     cb(null, filename);
 };
-// ✅ S3 upload middleware
+// S3 upload middleware
 exports.upload = (0, multer_1.default)({
     fileFilter,
     storage: (0, multer_s3_1.default)({

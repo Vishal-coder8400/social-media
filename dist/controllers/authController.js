@@ -187,7 +187,7 @@ const saveFcmToken = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     res.status(200).json({ message: "FCM token saved" });
 });
 exports.saveFcmToken = saveFcmToken;
-// ✅ Block or Unblock User (with optional duration in days)
+// Block or Unblock User (with optional duration in days)
 const blockOrUnblockUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { userId, block, reason, durationInDays } = req.body;
     if (!userId || typeof block !== "boolean") {
@@ -221,7 +221,7 @@ const blockOrUnblockUser = (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.blockOrUnblockUser = blockOrUnblockUser;
-// ✅ Get All Blocked Users
+// Get All Blocked Users
 const getBlockedUsers = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield userModel_1.default.find({ isBlocked: true }).select("name email role blockedUntil blockReason");
@@ -240,7 +240,7 @@ const getBlockedUsers = (_req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.getBlockedUsers = getBlockedUsers;
-// ✅ Set/Update Restrictions on a User
+//  Set/Update Restrictions on a User
 const setUserRestrictions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { userId, restrictions } = req.body;
     if (!userId || typeof restrictions !== "object") {

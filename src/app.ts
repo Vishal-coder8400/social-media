@@ -5,6 +5,7 @@ import postRoutes from "./routes/postRoutes";
 import commnetRoute from "./routes/commentRoutes"
 import notificationRoutes from "./routes/notification";
 import dailyMessageRoutes from "./routes/dailyMessageRoutes";
+import whatsappRoutes from "./routes/whatsappOTPRoute";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -23,6 +24,10 @@ app.use("/api/comment",commnetRoute);
 // notification
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/daily-message", dailyMessageRoutes);
+
+// whatsapp OTP
+app.use("/api/whatsapp", whatsappRoutes);
+
 
 
 export default app;

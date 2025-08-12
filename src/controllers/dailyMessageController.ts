@@ -10,7 +10,7 @@ interface AuthRequest extends Request {
   user?: { _id: string; role: "admin" | "user" };
 }
 
-// ✅ Create
+// Create
 export const createDailyMessage = async (req: AuthRequest, res: Response) => {
   const adminId = req.user?._id;
   const { content } = req.body;
@@ -35,7 +35,7 @@ export const createDailyMessage = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// ✅ Get Latest
+// Get Latest
 export const getDailyMessage = async (_req: Request, res: Response) => {
   try {
     const message = await DailyMessage.findOne().sort({ createdAt: -1 }).populate("adminId", "name photoURL");
@@ -57,7 +57,7 @@ export const getDailyMessage = async (_req: Request, res: Response) => {
   }
 };
 
-// ✅ Get by ID
+//  Get by ID
 export const getDailyMessageById = async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -81,7 +81,7 @@ export const getDailyMessageById = async (req: Request, res: Response) => {
   }
 };
 
-// ✅ Update
+//  Update
 export const updateDailyMessage = async (req: AuthRequest, res: Response) => {
   const { id } = req.params;
   const { content } = req.body;
@@ -114,7 +114,7 @@ export const updateDailyMessage = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// ✅ Delete
+//  Delete
 export const deleteDailyMessage = async (req: AuthRequest, res: Response) => {
   const { id } = req.params;
 

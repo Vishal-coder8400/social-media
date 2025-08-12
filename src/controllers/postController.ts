@@ -3,15 +3,10 @@ import Post from "../models/postModel";
 import cloudinary from "../utils/cloudinary";
 import mongoose from "mongoose";
 import dayjs from "dayjs";
-import fs from "fs";
-import os from "os";
-import path from "path";
-import { v4 as uuid } from "uuid";
 import { sendNotification } from "../utils/sendNotification";
 import Notification from "../models/notificationModel";
 import User from "../models/userModel";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { UploadApiResponse } from "cloudinary";
 
 dayjs.extend(relativeTime);
 
@@ -33,7 +28,7 @@ export const createPost = async (req: AuthRequest, res: Response): Promise<void>
     let video: string | undefined;
     let videoThumbnail: string | undefined;
 
-    // ✅ Upload Images
+    // Upload Images
     if (req.files && "images" in req.files) {
       const imageFiles = req.files["images"] as Express.Multer.File[];
 
@@ -67,7 +62,7 @@ export const createPost = async (req: AuthRequest, res: Response): Promise<void>
       }
     }
 
-    // ✅ Upload Video (stream + async eager processing)
+    //  Upload Video (stream + async eager processing)
     if (req.files && "video" in req.files) {
       const videoFile = (req.files["video"] as Express.Multer.File[])[0];
 
@@ -97,7 +92,7 @@ export const createPost = async (req: AuthRequest, res: Response): Promise<void>
       });
     }
 
-    // ✅ Upload Video Thumbnail
+    //  Upload Video Thumbnail
     if (req.files && "videoThumbnail" in req.files) {
       const thumbnailFile = (req.files["videoThumbnail"] as Express.Multer.File[])[0];
 
@@ -127,7 +122,7 @@ export const createPost = async (req: AuthRequest, res: Response): Promise<void>
       });
     }
 
-    // ✅ Save Post
+    //  Save Post
     const post = await Post.create({
       adminId,
       content,
@@ -210,7 +205,7 @@ export const votePollOption = async (req: AuthRequest, res: Response) => {
       }
     });
 
-    // ✅ Add vote to selected option
+    //  Add vote to selected option
     const selectedOption = post.pollOptions?.find(
       (opt: any) => opt._id.toString() === optionId
     );
@@ -888,3 +883,4 @@ export const getPostAnalytics = async (req: AuthRequest, res: Response): Promise
     res.status(500).json({ message: "Failed to fetch analytics", error: err });
   }
 };
+

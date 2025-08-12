@@ -18,7 +18,7 @@ const dayjs_1 = __importDefault(require("dayjs"));
 const relativeTime_1 = __importDefault(require("dayjs/plugin/relativeTime"));
 const userModel_1 = __importDefault(require("../models/userModel"));
 dayjs_1.default.extend(relativeTime_1.default);
-// ✅ Create
+// Create
 const createDailyMessage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const adminId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
@@ -42,7 +42,7 @@ const createDailyMessage = (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.createDailyMessage = createDailyMessage;
-// ✅ Get Latest
+// Get Latest
 const getDailyMessage = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const message = yield dailyMessageModel_1.default.findOne().sort({ createdAt: -1 }).populate("adminId", "name photoURL");
@@ -63,7 +63,7 @@ const getDailyMessage = (_req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.getDailyMessage = getDailyMessage;
-// ✅ Get by ID
+//  Get by ID
 const getDailyMessageById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     try {
@@ -85,7 +85,7 @@ const getDailyMessageById = (req, res) => __awaiter(void 0, void 0, void 0, func
     }
 });
 exports.getDailyMessageById = getDailyMessageById;
-// ✅ Update
+//  Update
 const updateDailyMessage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const { id } = req.params;
@@ -116,7 +116,7 @@ const updateDailyMessage = (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.updateDailyMessage = updateDailyMessage;
-// ✅ Delete
+//  Delete
 const deleteDailyMessage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const { id } = req.params;

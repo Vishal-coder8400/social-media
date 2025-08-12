@@ -29,7 +29,7 @@ router.post("/block", authMiddleware_1.verifyFirebaseToken, authMiddleware_1.req
 router.get("/getAllblockedUser", authMiddleware_1.verifyFirebaseToken, authMiddleware_1.requireAdmin, authController_1.getBlockedUsers);
 // Set user restrictions
 router.post("/restrict", authMiddleware_1.verifyFirebaseToken, authMiddleware_1.requireAdmin, authController_1.setUserRestrictions);
-// ✅ Get All Users With Restrictions
+//  Get All Users With Restrictions
 router.get("/getRestricted-users", authMiddleware_1.verifyFirebaseToken, authMiddleware_1.requireAdmin, authController_1.getRestrictedUsers);
 // Get all blocked users
 exports.default = router;

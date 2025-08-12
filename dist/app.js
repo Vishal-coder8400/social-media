@@ -10,6 +10,7 @@ const postRoutes_1 = __importDefault(require("./routes/postRoutes"));
 const commentRoutes_1 = __importDefault(require("./routes/commentRoutes"));
 const notification_1 = __importDefault(require("./routes/notification"));
 const dailyMessageRoutes_1 = __importDefault(require("./routes/dailyMessageRoutes"));
+const whatsappOTPRoute_1 = __importDefault(require("./routes/whatsappOTPRoute"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -21,4 +22,6 @@ app.use("/api/comment", commentRoutes_1.default);
 // notification
 app.use("/api/notifications", notification_1.default);
 app.use("/api/daily-message", dailyMessageRoutes_1.default);
+// whatsapp OTP
+app.use("/api/whatsapp", whatsappOTPRoute_1.default);
 exports.default = app;

@@ -33,7 +33,6 @@ const notificationModel_1 = __importDefault(require("../models/notificationModel
 const userModel_1 = __importDefault(require("../models/userModel"));
 const relativeTime_1 = __importDefault(require("dayjs/plugin/relativeTime"));
 dayjs_1.default.extend(relativeTime_1.default);
-//Create Post
 const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const { content, postType, pollOptions, category } = req.body;
@@ -50,53 +49,81 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         if (req.files && "images" in req.files) {
             const imageFiles = req.files["images"];
             for (const file of imageFiles) {
+                if (file.size > 15 * 1024 * 1024) {
+                    res.status(400).json({ message: "Each image must be under 15MB" });
+                    return;
+                }
                 const imageUrl = yield new Promise((resolve, reject) => {
                     const stream = cloudinary_1.default.uploader.upload_stream({
                         resource_type: "image",
                         folder: "posts/images",
+                        format: "webp",
+                        quality: "auto:good",
                     }, (error, result) => {
-                        if (error || !result)
+                        if (error || !result) {
+                            console.error("❌ Image upload error:", error);
                             reject("Image upload failed");
-                        else
+                        }
+                        else {
                             resolve(result.secure_url);
+                        }
                     });
                     stream.end(file.buffer);
                 });
                 images.push(imageUrl);
             }
         }
-        // Upload Video
+        //  Upload Video (stream + async eager processing)
         if (req.files && "video" in req.files) {
             const videoFile = req.files["video"][0];
+            if (videoFile.size > 1024 * 1024 * 1024) {
+                res.status(400).json({ message: "Video too large (max 1GB)" });
+                return;
+            }
             video = yield new Promise((resolve, reject) => {
                 const stream = cloudinary_1.default.uploader.upload_stream({
                     resource_type: "video",
                     folder: "posts/videos",
+                    eager: [{ format: "mp4", quality: "auto" }],
+                    eager_async: true,
                 }, (error, result) => {
-                    if (error || !result)
+                    if (error || !result) {
+                        console.error("🚨 Cloudinary video upload error:", error);
                         reject("Video upload failed");
-                    else
+                    }
+                    else {
                         resolve(result.secure_url);
+                    }
                 });
                 stream.end(videoFile.buffer);
             });
         }
-        // Upload Video Thumbnail
+        //  Upload Video Thumbnail
         if (req.files && "videoThumbnail" in req.files) {
             const thumbnailFile = req.files["videoThumbnail"][0];
+            if (thumbnailFile.size > 5 * 1024 * 1024) {
+                res.status(400).json({ message: "Thumbnail too large (max 5MB)" });
+                return;
+            }
             videoThumbnail = yield new Promise((resolve, reject) => {
                 const stream = cloudinary_1.default.uploader.upload_stream({
                     resource_type: "image",
                     folder: "posts/thumbnails",
+                    quality: "auto:eco",
+                    format: "webp",
                 }, (error, result) => {
-                    if (error || !result)
+                    if (error || !result) {
+                        console.error("❌ Thumbnail upload error:", error);
                         reject("Thumbnail upload failed");
-                    else
+                    }
+                    else {
                         resolve(result.secure_url);
+                    }
                 });
                 stream.end(thumbnailFile.buffer);
             });
         }
+        //  Save Post
         const post = yield postModel_1.default.create({
             adminId,
             content,
@@ -107,14 +134,12 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             category,
             pollOptions: postType === "poll" ? JSON.parse(pollOptions || "[]") : [],
         });
-        // Populate adminId
         const populatedPost = yield post.populate("adminId", "_id name photoURL");
         const postObj = populatedPost.toObject();
         const admin = postObj.adminId;
-        const { category: _omitCategory } = postObj, cleanedPost = __rest(postObj, ["category"]);
         res.status(201).json({
             category: category.toLowerCase(),
-            post: Object.assign(Object.assign({}, cleanedPost), { timeAgo: (0, dayjs_1.default)(post.createdAt).fromNow(), adminId: {
+            post: Object.assign(Object.assign({}, postObj), { timeAgo: (0, dayjs_1.default)(post.createdAt).fromNow(), adminId: {
                     _id: admin._id,
                     name: admin.name,
                     photoURL: admin.photoURL,
@@ -163,7 +188,7 @@ const votePollOption = (req, res) => __awaiter(void 0, void 0, void 0, function*
                 opt.votes = Math.max(0, opt.votes - 1);
             }
         });
-        // ✅ Add vote to selected option
+        //  Add vote to selected option
         const selectedOption = (_c = post.pollOptions) === null || _c === void 0 ? void 0 : _c.find((opt) => opt._id.toString() === optionId);
         if (!selectedOption) {
             res.status(404).json({ message: "Poll option not found" });

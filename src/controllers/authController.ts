@@ -214,7 +214,7 @@ export const saveFcmToken = async (req: AuthRequest, res: Response) => {
 };
 
 
-// ✅ Block or Unblock User (with optional duration in days)
+// Block or Unblock User (with optional duration in days)
 export const blockOrUnblockUser = async (req: AuthRequest, res: Response): Promise<void> => {
   const { userId, block, reason, durationInDays } = req.body;
 
@@ -254,7 +254,7 @@ export const blockOrUnblockUser = async (req: AuthRequest, res: Response): Promi
 };
 
 
-// ✅ Get All Blocked Users
+// Get All Blocked Users
 export const getBlockedUsers = async (_req: Request, res: Response): Promise<void> => {
   try {
     const users = await User.find({ isBlocked: true }).select(
@@ -276,7 +276,7 @@ export const getBlockedUsers = async (_req: Request, res: Response): Promise<voi
   }
 };
 
-// ✅ Set/Update Restrictions on a User
+//  Set/Update Restrictions on a User
 export const setUserRestrictions = async (req: AuthRequest, res: Response): Promise<void> => {
   const { userId, restrictions } = req.body;
 

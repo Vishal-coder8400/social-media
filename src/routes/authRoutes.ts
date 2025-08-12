@@ -59,7 +59,7 @@ router.get("/getAllblockedUser", verifyFirebaseToken, requireAdmin, getBlockedUs
 // Set user restrictions
 router.post("/restrict", verifyFirebaseToken, requireAdmin, setUserRestrictions);
 
-// ✅ Get All Users With Restrictions
+//  Get All Users With Restrictions
 router.get("/getRestricted-users", verifyFirebaseToken, requireAdmin, getRestrictedUsers);
 
 

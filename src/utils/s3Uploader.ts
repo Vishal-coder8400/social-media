@@ -4,7 +4,7 @@ import s3 from "../services/s3"
 
 const bucketName = process.env.AWS_S3_BUCKET_NAME!;
 
-// ✅ File filter to allow images, videos, and PDFs
+//  File filter to allow images, videos, and PDFs
 const fileFilter = (
   req: any,
   file: Express.Multer.File,
@@ -28,7 +28,7 @@ const fileFilter = (
   }
 };
 
-// ✅ Dynamic key naming: images/, videos/, pdfs/
+//  Dynamic key naming: images/, videos/, pdfs/
 const getKey = (_req: any, file: Express.Multer.File, cb: Function) => {
   let folder = "others";
 
@@ -42,7 +42,7 @@ const getKey = (_req: any, file: Express.Multer.File, cb: Function) => {
   cb(null, filename);
 };
 
-// ✅ S3 upload middleware
+// S3 upload middleware
 export const upload = multer({
   fileFilter,
   storage: multerS3({

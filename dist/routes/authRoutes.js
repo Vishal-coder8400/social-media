@@ -12,7 +12,7 @@ const storage = multer_1.default.memoryStorage();
 const upload = (0, multer_1.default)({ storage });
 const router = (0, express_1.Router)();
 // Email & Phone Login (Auto Create if not exists)
-router.post("/email-login", authController_1.emailLoginOrCreate);
+router.post("/email-login", authController_1.googleLoginOrCreate);
 router.post("/phone-login", authController_1.phoneLoginOrCreate);
 // Second Form - Complete Profile
 router.post("/complete-profile", authMiddleware_1.verifyFirebaseToken, upload.single("file"), // expects form field "file"

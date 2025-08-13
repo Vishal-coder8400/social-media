@@ -9,8 +9,9 @@ export interface AuthRequest extends Request {
   file?: Express.Multer.File;
 }
 
-// EMAIL LOGIN or CREATE
-export const emailLoginOrCreate = async (req: Request, res: Response): Promise<void> => {
+// login with google
+// GOOGLE LOGIN
+export const googleLoginOrCreate = async (req: Request, res: Response): Promise<void> => {
   const { idToken } = req.body;
 
   if (!idToken) {
@@ -19,23 +20,35 @@ export const emailLoginOrCreate = async (req: Request, res: Response): Promise<v
   }
 
   try {
+    // Verify Google ID Token with Firebase Admin SDK
     const decoded = await admin.auth().verifyIdToken(idToken);
     const { uid } = decoded;
 
+    // Check if user already exists in MongoDB
     let user = await User.findOne({ uid });
 
     if (!user) {
+      // Create new user if not exists
       user = await User.create({
         uid,
-        role: "pending"
+        role: "pending", // Default role
       });
-      res.status(201).json({ message: "New email user created, please complete profile", user, idToken });
+
+      res.status(201).json({
+        message: "New Google user created, please complete profile",
+        user,
+        idToken,
+      });
       return;
     }
 
-    res.status(200).json({ message: `${user.role} email login successful`, user, idToken });
+    res.status(200).json({
+      message: `${user.role} Google login successful`,
+      user,
+      idToken,
+    });
   } catch (err) {
-    console.error("Email login error:", err);
+    console.error("Google login error:", err);
     res.status(401).json({ message: "Invalid token", error: err });
   }
 };

@@ -12,37 +12,49 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRestrictedUsers = exports.setUserRestrictions = exports.getBlockedUsers = exports.blockOrUnblockUser = exports.saveFcmToken = exports.getUserProfileByUID = exports.updateOwnProfile = exports.getOwnProfile = exports.completeProfile = exports.phoneLoginOrCreate = exports.emailLoginOrCreate = void 0;
+exports.getRestrictedUsers = exports.setUserRestrictions = exports.getBlockedUsers = exports.blockOrUnblockUser = exports.saveFcmToken = exports.getUserProfileByUID = exports.updateOwnProfile = exports.getOwnProfile = exports.completeProfile = exports.phoneLoginOrCreate = exports.googleLoginOrCreate = void 0;
 const firebase_1 = __importDefault(require("../config/firebase"));
 const userModel_1 = __importDefault(require("../models/userModel"));
 const cloudinary_1 = __importDefault(require("../utils/cloudinary"));
-// EMAIL LOGIN or CREATE
-const emailLoginOrCreate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// login with google
+// GOOGLE LOGIN
+const googleLoginOrCreate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { idToken } = req.body;
     if (!idToken) {
         res.status(400).json({ message: "idToken is required" });
         return;
     }
     try {
+        // Verify Google ID Token with Firebase Admin SDK
         const decoded = yield firebase_1.default.auth().verifyIdToken(idToken);
         const { uid } = decoded;
+        // Check if user already exists in MongoDB
         let user = yield userModel_1.default.findOne({ uid });
         if (!user) {
+            // Create new user if not exists
             user = yield userModel_1.default.create({
                 uid,
-                role: "pending"
+                role: "pending", // Default role
             });
-            res.status(201).json({ message: "New email user created, please complete profile", user, idToken });
+            res.status(201).json({
+                message: "New Google user created, please complete profile",
+                user,
+                idToken,
+            });
             return;
         }
-        res.status(200).json({ message: `${user.role} email login successful`, user, idToken });
+        res.status(200).json({
+            message: `${user.role} Google login successful`,
+            user,
+            idToken,
+        });
     }
     catch (err) {
-        console.error("Email login error:", err);
+        console.error("Google login error:", err);
         res.status(401).json({ message: "Invalid token", error: err });
     }
 });
-exports.emailLoginOrCreate = emailLoginOrCreate;
+exports.googleLoginOrCreate = googleLoginOrCreate;
 // PHONE LOGIN or CREATE
 const phoneLoginOrCreate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { idToken } = req.body;

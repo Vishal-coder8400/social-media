@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {
-  emailLoginOrCreate,
+  googleLoginOrCreate,
   phoneLoginOrCreate,
   completeProfile,
   getOwnProfile,
@@ -22,7 +22,7 @@ const upload = multer({ storage });
 const router = Router();
 
 // Email & Phone Login (Auto Create if not exists)
-router.post("/email-login", emailLoginOrCreate);
+router.post("/email-login", googleLoginOrCreate);
 router.post("/phone-login", phoneLoginOrCreate);
 
 // Second Form - Complete Profile

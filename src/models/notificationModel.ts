@@ -5,7 +5,7 @@ export interface INotification extends Document {
   receiverId: mongoose.Types.ObjectId;
   postId?: mongoose.Types.ObjectId;
   commentId?: mongoose.Types.ObjectId;
-  type: "like" | "comment" | "reply" | "share" | "save" | "unsave" |"like-comment"; 
+  type: "like" | "comment" | "reply" | "like-comment";
   isRead: boolean;
   createdAt?: Date;
 }
@@ -18,7 +18,7 @@ const notificationSchema = new Schema<INotification>(
     commentId: { type: Schema.Types.ObjectId, ref: "Comment" },
     type: {
       type: String,
-      enum: ["like", "comment", "reply", "share", "save", "unsave","like-comment"], 
+      enum: ["like", "comment", "reply", "like-comment"],
       required: true,
     },
     isRead: { type: Boolean, default: false },

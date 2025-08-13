@@ -568,19 +568,8 @@ const sharePost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             post.sharedBy.push(new mongoose_1.default.Types.ObjectId(userId));
             post.shareCount += 1;
             yield post.save();
-            // Notify Admin
-            const adminUser = yield userModel_1.default.findById(post.adminId);
-            if (adminUser === null || adminUser === void 0 ? void 0 : adminUser.fcmToken) {
-                yield (0, sendNotification_1.sendNotification)(adminUser.fcmToken, "Post Shared", "Someone shared your post");
-            }
-            yield notificationModel_1.default.create({
-                senderId: userId,
-                receiverId: post.adminId,
-                type: "share",
-                postId: post._id,
-            });
         }
-        const shareUrl = ` ${process.env.FRONTEND_URL}/post/${post._id}`;
+        const shareUrl = `${process.env.FRONTEND_URL}/post/${post._id}`;
         res.status(200).json({
             message: "Post share tracked successfully",
             shareUrl,

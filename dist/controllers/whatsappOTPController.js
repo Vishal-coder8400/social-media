@@ -21,17 +21,25 @@ function sendOtp(req, res) {
     (0, whatsappOtp_1.canSendOtp)(mobile)
         .then((canSend) => {
         if (!canSend) {
-            res.status(429).json({ error: "OTP already sent. Please wait before requesting again." });
-            return Promise.reject("rate_limit"); // stop chain
+            res.status(429).json({
+                error: "OTP already sent. Please wait before requesting again."
+            });
+            return Promise.reject("rate_limit");
         }
         // Remove old OTPs
         return whatsappOtpModel_1.OTPModel.deleteMany({ phoneNumber: mobile });
     })
         .then(() => {
         const { otp, expiresAt } = (0, whatsappOtp_1.generateOTP)();
-        return (0, whatsappApi_1.sendOtpWhatsapp)(authkey, mobile, countryCode, wid, name, otp)
+        // Pass proper template vars according to Authkey template placeholders
+        return (0, whatsappApi_1.sendOtpWhatsapp)(authkey, mobile, countryCode, wid, name, // will be mapped to var1 or correct placeholder
+        otp // will be mapped to var2 or correct placeholder
+        )
             .then(() => whatsappOtpModel_1.OTPModel.create({ phoneNumber: mobile, otp, expiresAt }))
-            .then(() => res.status(200).json({ message: "OTP sent successfully", expiresIn: 60 }));
+            .then(() => res.status(200).json({
+            message: "OTP sent successfully",
+            expiresIn: 60
+        }));
     })
         .catch((err) => {
         if (err !== "rate_limit") {
@@ -54,7 +62,7 @@ function verifyOtpController(req, res) {
         return;
     }
     whatsappOtpModel_1.OTPModel.findOne({ phoneNumber: mobile, otp })
-        .then(record => {
+        .then((record) => {
         if (!record)
             return res.status(400).json({ error: "Invalid OTP" });
         if (record.expiresAt.getTime() < Date.now()) {
@@ -67,7 +75,7 @@ function verifyOtpController(req, res) {
             res.status(200).json({ message: "OTP verified successfully" });
         });
     })
-        .catch(err => {
+        .catch((err) => {
         console.error("[VERIFY OTP ERROR]", err);
         res.status(500).json({ error: "Internal error" });
     });

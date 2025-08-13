@@ -9,6 +9,10 @@ const authMiddleware_1 = require("../middlewares/authMiddleware");
 const checkBlockedUser_1 = require("../middlewares/checkBlockedUser");
 const checkFeatureRestriction_1 = require("../middlewares/checkFeatureRestriction");
 const router = express_1.default.Router();
-router.get("/getNotiication", authMiddleware_1.verifyFirebaseToken, checkBlockedUser_1.checkBlockedUser, (0, checkFeatureRestriction_1.checkFeatureAccess)("notification"), notificationController_1.getNotifications);
-router.patch("/:id/read", authMiddleware_1.verifyFirebaseToken, checkBlockedUser_1.checkBlockedUser, (0, checkFeatureRestriction_1.checkFeatureAccess)("notification"), notificationController_1.markAsRead);
+// ✅ Get all notifications
+router.get("/getAllNotifications", authMiddleware_1.verifyFirebaseToken, checkBlockedUser_1.checkBlockedUser, (0, checkFeatureRestriction_1.checkFeatureAccess)("notification"), notificationController_1.getNotifications);
+// ✅ Mark a specific notification as read
+router.patch("/notifications/:id/read", authMiddleware_1.verifyFirebaseToken, checkBlockedUser_1.checkBlockedUser, (0, checkFeatureRestriction_1.checkFeatureAccess)("notification"), notificationController_1.markAsRead);
+// ✅ Mark all notifications as read
+router.patch("/notifications/mark-all-read", authMiddleware_1.verifyFirebaseToken, checkBlockedUser_1.checkBlockedUser, (0, checkFeatureRestriction_1.checkFeatureAccess)("notification"), notificationController_1.markAllAsRead);
 exports.default = router;

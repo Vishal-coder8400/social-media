@@ -697,26 +697,9 @@ export const sharePost = async (req: AuthRequest, res: Response): Promise<void> 
       post.sharedBy.push(new mongoose.Types.ObjectId(userId));
       post.shareCount += 1;
       await post.save();
-
-      // Notify Admin
-      const adminUser = await User.findById(post.adminId);
-      if (adminUser?.fcmToken) {
-        await sendNotification(
-          adminUser.fcmToken,
-          "Post Shared",
-          "Someone shared your post"
-        );
-      }
-
-      await Notification.create({
-        senderId: userId,
-        receiverId: post.adminId,
-        type: "share",
-        postId: post._id,
-      });
     }
 
-    const shareUrl =` ${process.env.FRONTEND_URL}/post/${post._id}`;
+    const shareUrl = `${process.env.FRONTEND_URL}/post/${post._id}`;
 
     res.status(200).json({
       message: "Post share tracked successfully",
@@ -728,8 +711,6 @@ export const sharePost = async (req: AuthRequest, res: Response): Promise<void> 
     res.status(500).json({ message: "Failed to share post", error: err });
   }
 };
-
-
 
 // Track Post View by admin
 export const trackPostView = async (req: AuthRequest, res: Response): Promise<void> => {

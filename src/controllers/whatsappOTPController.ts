@@ -21,17 +21,33 @@ export function sendOtp(req: Request, res: Response): void {
   canSendOtp(mobile)
     .then((canSend) => {
       if (!canSend) {
-        res.status(429).json({ error: "OTP already sent. Please wait before requesting again." });
-        return Promise.reject("rate_limit"); // stop chain
+        res.status(429).json({
+          error: "OTP already sent. Please wait before requesting again."
+        });
+        return Promise.reject("rate_limit");
       }
       // Remove old OTPs
       return OTPModel.deleteMany({ phoneNumber: mobile });
     })
     .then(() => {
       const { otp, expiresAt } = generateOTP();
-      return sendOtpWhatsapp(authkey, mobile, countryCode, wid, name, otp)
+
+      // Pass proper template vars according to Authkey template placeholders
+      return sendOtpWhatsapp(
+        authkey,
+        mobile,
+        countryCode,
+        wid,
+        name, // will be mapped to var1 or correct placeholder
+        otp   // will be mapped to var2 or correct placeholder
+      )
         .then(() => OTPModel.create({ phoneNumber: mobile, otp, expiresAt }))
-        .then(() => res.status(200).json({ message: "OTP sent successfully", expiresIn: 60 }));
+        .then(() =>
+          res.status(200).json({
+            message: "OTP sent successfully",
+            expiresIn: 60
+          })
+        );
     })
     .catch((err) => {
       if (err !== "rate_limit") {
@@ -57,7 +73,7 @@ export function verifyOtpController(req: Request, res: Response): void {
   }
 
   OTPModel.findOne({ phoneNumber: mobile, otp })
-    .then(record => {
+    .then((record) => {
       if (!record) return res.status(400).json({ error: "Invalid OTP" });
       if (record.expiresAt.getTime() < Date.now()) {
         OTPModel.deleteOne({ _id: record._id }).then(() => {
@@ -69,7 +85,7 @@ export function verifyOtpController(req: Request, res: Response): void {
         res.status(200).json({ message: "OTP verified successfully" });
       });
     })
-    .catch(err => {
+    .catch((err) => {
       console.error("[VERIFY OTP ERROR]", err);
       res.status(500).json({ error: "Internal error" });
     });
